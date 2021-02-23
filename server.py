@@ -1,6 +1,7 @@
 from socket import socket, AF_INET, SOCK_STREAM, SO_RCVBUF, SOL_SOCKET
 from threading import Thread
 from json import dumps, loads
+import sys
 
 HOST = 'localhost'
 PORT = 8080
@@ -19,27 +20,40 @@ def read_from_socket(s: socket) -> bytearray:
             break
     return data
 
-def main() -> None:
+
+def handler(client_socket, client_info, key):
+    raw_message = read_from_socket(client_socket)
+    message = raw_message.decode(CODING)
+    payload = loads(message)
+    if payload["key"] == key:
+
+        print(f"Receive from: {client_info}, payload: {payload['value']}")
+
+        result = str(2 * int(payload["value"]) / 13)
+        data = {
+            "response": result,
+        }
+        string_result = dumps(data)
+        raw_payload = string_result.encode(CODING)
+        client_socket.send(raw_payload)
+
+    client_socket.close()
+
+
+def main(key) -> None:
     sock = socket(AF_INET, SOCK_STREAM)
     sock.bind((HOST, PORT))
     sock.listen(QUEUE_LEN)
     while True:
         (client_socket, client_info) = sock.accept()
-        t = Thread(target=handler, args=(client_socket, client_info,))
+        t = Thread(target=handler, args=(client_socket, client_info, key,))
         t.start()
-
-def handler(client_socket, client_info):
-    raw_message = read_from_socket(client_socket)
-    message = raw_message.decode(CODING)
-    payload = loads(message)
-    print(f"Receive from: {client_info}, payload: {payload}")
-
-    result = str(2 * int(payload) / 13) + ", Success receive"
-    string_result = dumps(result)
-    raw_payload = string_result.encode(CODING)
-    client_socket.send(raw_payload)
-    client_socket.close()
 
 
 if __name__ == '__main__':
-    main()
+    if len(sys.argv) != 2:
+        print("You should provide key as first argument")
+        sys.exit(1)
+
+    secret_key = sys.argv[1]
+    main(key=secret_key)

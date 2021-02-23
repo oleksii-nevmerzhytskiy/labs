@@ -1,12 +1,12 @@
-import threading
 from socket import socket, AF_INET, SOCK_STREAM, SO_RCVBUF, SOL_SOCKET
 from json import dumps, loads
 from threading import Thread
-import time
+import sys
 
 HOST = 'localhost'
 PORT = 8080
 CODING = "utf-8"
+NUMBER_OF_CONNECTIONS = 14
 
 
 def read_from_socket(s: socket) -> bytearray:
@@ -21,32 +21,34 @@ def read_from_socket(s: socket) -> bytearray:
     return data
 
 
-def request_to_server(num: int):
+def request_to_server(num: int, key):
     sock = socket(AF_INET, SOCK_STREAM)
 
     sock.connect((HOST, PORT))
-    if num == 5:
-        time.sleep(5)
 
+    data = {
+        "key": key,
+        "value": num,
+    }
 
-    request_payload = dumps(num) + '\n'
-
+    request_payload = dumps(data) + '\n'
 
     request_raw = request_payload.encode(CODING)
     sock.send(request_raw)
     payload_raw = read_from_socket(sock)
-    decode_payload_faw = payload_raw.decode(CODING)
+    decode_payload_raw = payload_raw.decode(CODING)
 
-    payload = loads(decode_payload_faw)
+    payload = loads(decode_payload_raw)
+
     sock.close()
 
-    print(f"Receive: {num}, {payload}")
+    print(f"Receive: {num}, {payload['response']}")
 
 
-def main() -> None:
+def main(key) -> None:
     threads = []
-    for i in range(1, 15):
-        t = Thread(target=request_to_server, args=(i,))
+    for i in range(NUMBER_OF_CONNECTIONS):
+        t = Thread(target=request_to_server, args=(i, key,))
         threads.append(t)
         t.start()
 
@@ -55,4 +57,9 @@ def main() -> None:
 
 
 if __name__ == '__main__':
-    main()
+    if len(sys.argv) != 2:
+        print("You should provide key as first argument")
+        sys.exit(1)
+
+    secret_key = sys.argv[1]
+    main(key=secret_key)
