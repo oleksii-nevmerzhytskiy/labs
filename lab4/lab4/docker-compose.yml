@@ -1,0 +1,23 @@
+version: '3.1'
+
+services:
+
+  postres_db:
+    image: postgres:10.16
+    container_name: postres_db
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: pass
+      POSTGRES_USER: django
+      POSTGRES_DB: blackList_db
+    volumes:
+      - ./postgres_data:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+
+  redis_db:
+    image: redis:6.2.1
+    container_name: redis_db
+    restart: always
+    ports:
+      - 6379:6379

@@ -129,3 +129,4 @@ dmypy.json
 .pyre/
 
 .idea
+lab4/lab4/postgres_data
