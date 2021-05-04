@@ -1,0 +1,56 @@
+version: '3.1'
+
+services:
+
+  postgres_db:
+    image: postgres:10.16
+    container_name: postres_db
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: pass
+      POSTGRES_USER: django
+      POSTGRES_DB: blackList_db
+    volumes:
+      - ./postgres_data:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+
+  redis_db:
+    image: redis:6.2.1
+    container_name: redis_db
+    restart: always
+    ports:
+      - 6379:6379
+
+  web:
+      image: lab5/web
+      build:
+        context: .
+        dockerfile: Dockerfile
+      container_name: web
+      command: python manage.py runserver 0.0.0.0:8000
+      environment:
+        - REDIS_HOST=redis_db
+        - REDIS_PORT=6379
+        - REDIS_DB=1
+        - POSTGRES_HOST=postgres_db
+        - POSTGRES_PORT=5432
+      volumes:
+        - .:/code
+      ports:
+        - "8000:8000"
+      depends_on:
+        - redis_db
+        - postgres_db
+
+  migration:
+      image: lab5/web_migration
+      build:
+        context: .
+        dockerfile: Dockerfile.migration
+      container_name: migration
+      environment:
+        - POSTGRES_HOST=postgres_db
+        - POSTGRES_PORT=5432
+      depends_on:
+        - postgres_db

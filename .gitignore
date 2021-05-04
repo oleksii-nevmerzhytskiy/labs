@@ -130,3 +130,4 @@ dmypy.json
 
 .idea
 lab4/lab4/postgres_data
+lab5/lab4/postgres_data
