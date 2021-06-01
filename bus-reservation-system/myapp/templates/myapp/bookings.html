@@ -1,0 +1,59 @@
+{% extends 'myapp/base.html' %}
+{% block content %}
+
+<form action="{% url 'home' %}" method="post">
+
+    {% csrf_token %}
+
+    <h2>Ваше бронювання підтверджено!</h2>
+
+
+    <button type="button" class="btn btn-success" data-toggle="modal" data-target="#myModal">
+        Деталі
+    </button>
+
+
+    <div class="modal" id="myModal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+
+
+                <div class="modal-header">
+                    <h4 class="modal-title">Деталі</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+
+
+                <div class="modal-body">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item"><b>Марка автобуса:</b> {{book.bus_name}}</li>
+                        <li class="list-group-item"><b>Звідки:</b> {{book.source}}</li>
+                        <li class="list-group-item"><b>Куди:</b> {{book.dest}}</li>
+                        <li class="list-group-item"><b>Кількість білетів:</b> {{book.nos}}</li>
+                        <li class="list-group-item"><b>Ціна:</b> {{book.price}}</li>
+                        <li class="list-group-item"><b>Сума:</b> {{cost}}</li>
+                        <li class="list-group-item"><b>Дата:</b> {{book.date}}</li>
+                        <li class="list-group-item"><b>Час відправлення:</b> {{book.time}}</li>
+                    </ul>
+
+
+                </div>
+
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-success" data-dismiss="modal">Закрити</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="pull-right">
+        <button type="submit" class="btn btn-primary float-right">OK</button>
+    </div>
+
+
+</form>
+
+
+{% endblock %}

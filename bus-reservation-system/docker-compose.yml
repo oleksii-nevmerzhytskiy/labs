@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+
+
+
+  web:
+      image: bus-reservation-system/web
+      build:
+        context: .
+        dockerfile: Dockerfile
+      container_name: web
+      command: python manage.py runserver 0.0.0.0:8000
+      volumes:
+        - .:/code
+      ports:
+        - "8000:8000"
+
+
+  migration:
+      image: bus-reservation-system/web_migration
+      build:
+        context: .
+        dockerfile: Dockerfile.migration
+      container_name: migration
+      volumes:
+        - .:/code
+
